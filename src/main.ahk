@@ -1,92 +1,74 @@
-; Define modules as an array of objects
-Modules := [
-    {
-        Name: "Git",
-        Process: "",
-        Script: "
-        (
-        echo resetting git credentials...
-        del "%UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage"
-        del "%UserProfile%\.gitconfig"
-        cmdkey /delete:git:https://lab.ssafy.com
-        )"
-    },
-    {
-        Name: "Chrome",
-        Process: "chrome.exe",
-        Script: "
-        (
-        rd /s /q "%localappdata%\google\chrome\user data"
-        )"
-    },
-    {
-        Name: "MatterMost",
-        Process: "mattermost.exe",
-        Script: "
-        (
-        rd /s /q "%appdata%\mattermost"
-        )
-        "
-    }
-    
+Modules := [{ Name: "Git", Process: "", Script: "
+    (
+    echo resetting git credentials...
+    del `%UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
+    del `%UserProfile%\.gitconfig
+    cmdkey /delete:git:https://lab.ssafy.com
+    )"
+}, { Name: "Chrome", Process: "chrome.exe", Script: "
+    (
+    rd /s /q `%localappdata%\google\chrome\user data
+    )"
+}, { Name: "MatterMost", Process: "mattermost.exe", Script: "
+    (
+    rd /s /q `%appdata%\mattermost
+    )"
+}
 ]
 
 ; Create a simple GUI
-Gui, Add, Text,, Select modules to apply:
-ModuleVars := {}
+MainGui := Gui()
+MainGui.AddText(, "Select modules to apply:")
+ModuleCheckBoxes := []
 
 ; Dynamically create checkboxes for each module
-Loop, % Modules.MaxIndex()
-{
-    Module := Modules[A_Index]
-    VarName := "Module" . A_Index
-    Gui, Add, Checkbox, v%VarName%, %Module.Name%
-    ModuleVars[A_Index] := VarName
+for index, module in Modules {
+    VarName := "Module" . (index + 1)
+    checkbox := MainGui.AddCheckBox("v" module.Name, module.Name)
+    ModuleCheckBoxes.Push(checkbox)
 }
 
-Gui, Add, Checkbox, vShutdownPC, Shutdown PC
-Gui, Add, Button, gApply, Apply
-Gui, Show,, Application Manager
-Return
+ShutdownPC := MainGui.AddCheckbox("vShutdownPC", "Shutdown PC")
+RunButton := MainGui.AddButton(, "Run")
+RunButton.OnEvent("Click", Run)
+
+MainGui.Show
 
 ; Apply button event handler
-Apply:
-Gui, Submit, NoHide
+Run(*) {
+    global Modules, ModuleCheckBoxes, ShutdownPC
 
-; Loop through each module and apply the actions if the checkbox is checked
-Loop, % Modules.MaxIndex()
-{
-    Module := Modules[A_Index]
-    VarName := ModuleVars[A_Index]
-    if (%VarName%)
-    {
-        ; Close the process if specified
-        if (Module.Process != "")
-        {
-            Process, Close, %Module.Process%
-        }
-        
-        ; Run the script if specified
-        if (Module.Script != "")
-        {
-            ; Expand environment variables and run the script
-            ScriptToRun := Module.Script
-            EnvGet, localAppData, LOCALAPPDATA
-            StringReplace, ScriptToRun, ScriptToRun, %localappdata%, %localAppData%, All
-            RunWait, %ComSpec% /c %ScriptToRun%,, Hide
+    ; Loop through each module and apply the actions if the checkbox is checked
+    for index, module in Modules {
+        if ModuleCheckBoxes[index].Value {
+            ; Close the process if specified
+            if module.Process != ""
+                ProcessClose(module.Process)
+
+            ; Run the script if specified
+            if module.Script != ""
+            {
+                ; Expand environment variables and run the script
+                ScriptToRun := module.Script
+                localAppData := EnvGet("LOCALAPPDATA")
+                appData := EnvGet("APPDATA")
+                StrReplace(ScriptToRun, "%localappdata%", localAppData)
+                StrReplace(ScriptToRun, "%appdata%", appData)
+                RunWait(A_ComSpec " /c " ScriptToRun, "", "Hide")
+            }
         }
     }
-}
 
-; Shutdown the PC if selected
-if (ShutdownPC)
-{
-    Shutdown, 1
-}
+    ; Shutdown the PC if selected
+    if ShutdownPC.Value
+        Shutdown(1)
 
-MsgBox, Actions applied.
-Return
+    MsgBox("Actions applied.")
+}
 
 ; Handle GUI close event
-GuiClose:
-ExitApp
+MainGui.OnEvent("Close", GuiClose)
+
+GuiClose(*) {
+    ExitApp()
+}
