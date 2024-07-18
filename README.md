@@ -1,5 +1,8 @@
 # Simple PC Cleaner
 
+![image](https://github.com/user-attachments/assets/8157a0db-7b7b-4b1e-b48b-d1a66fff41e2)
+
+
 A lightweight tool designed to reset some applications of your PC and shutdown immediately with GUI.
 
 It is developed using AutoHotkey, making it easy to customize and build an executable file with GUI.
