@@ -1,18 +1,17 @@
 Modules := [{ Name: "Git", Process: "", Script: "
-    (
-    echo resetting git credentials...
-    del `%UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
-    del `%UserProfile%\.gitconfig
-    cmdkey /delete:git:https://lab.ssafy.com
-    )"
+(
+del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
+del %UserProfile%\.gitconfig
+cmdkey /delete:git:https://lab.ssafy.com
+)"
 }, { Name: "Chrome", Process: "chrome.exe", Script: "
-    (
-    rd /s /q `%localappdata%\google\chrome\user data
-    )"
+(
+rmdir /s /q "%localappdata%\google\chrome\user data"
+)"
 }, { Name: "MatterMost", Process: "mattermost.exe", Script: "
-    (
-    rd /s /q `%appdata%\mattermost
-    )"
+(
+rmdir /s /q "%appdata%\mattermost"
+)"
 }
 ]
 
@@ -34,36 +33,41 @@ RunButton.OnEvent("Click", Run)
 
 MainGui.Show
 
+RunMultilineScript(scriptToRun) {
+    shell := ComObject("WScript.Shell")
+    ; Open cmd.exe with echoing of commands disabled
+    exec := shell.Exec(A_ComSpec " /Q /K")
+    ; Send the commands to execute, separated by newline
+    exec.StdIn.WriteLine(scriptToRun "`nexit")  ; Always exit at the end!
+    ; Read and return the output of all commands
+    return exec.StdOut.ReadAll()
+}
+
 ; Apply button event handler
 Run(*) {
     global Modules, ModuleCheckBoxes, ShutdownPC
 
+    wholeScript := ""
     ; Loop through each module and apply the actions if the checkbox is checked
     for index, module in Modules {
         if ModuleCheckBoxes[index].Value {
             ; Close the process if specified
             if module.Process != ""
-                ProcessClose(module.Process)
-
-            ; Run the script if specified
-            if module.Script != ""
-            {
-                ; Expand environment variables and run the script
-                ScriptToRun := module.Script
-                localAppData := EnvGet("LOCALAPPDATA")
-                appData := EnvGet("APPDATA")
-                StrReplace(ScriptToRun, "%localappdata%", localAppData)
-                StrReplace(ScriptToRun, "%appdata%", appData)
-                RunWait(A_ComSpec " /c " ScriptToRun, "", "Hide")
-            }
+                while ProcessExist(module.Process)
+                    ProcessClose module.Process
+            ; Add to single string
+            wholeScript := wholeScript . module.Script . "`n"
         }
     }
 
+    ; Run the whole scripts at once
+    result := RunMultilineScript(wholeScript)
+    
     ; Shutdown the PC if selected
     if ShutdownPC.Value
         Shutdown(1)
-
-    MsgBox("Actions applied.")
+    
+    MsgBox("Execution Result:`n`n" . result . "`n`nDone!")
 }
 
 ; Handle GUI close event
