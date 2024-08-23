@@ -54,8 +54,8 @@ Run(*) {
         if ModuleCheckBoxes[index].Value {
             ; Close the processes if specified
             for _, process in module.Processes {
-                while ProcessExist(module.Process)
-                    ProcessClose module.Process
+                while ProcessExist(process)
+                    ProcessClose process
             }
             ; Build up a single script
             wholeScript := wholeScript . module.Script . "`n"
