@@ -1,15 +1,15 @@
-Modules := [{ Name: "Git", Process: "", Script: "
+Modules := [{ Name: "Git", Processes: "", Script: "
 (
 del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
 del %UserProfile%\.gitconfig
 cmdkey /delete:git:https://lab.ssafy.com
 cmdkey /delete:git:https://github.com
 )"
-}, { Name: "Chrome", Process: "chrome.exe", Script: "
+}, { Name: "Chrome", Processes: "chrome.exe", Script: "
 (
 rmdir /s /q "%localappdata%\google\chrome\user data"
 )"
-}, { Name: "MatterMost", Process: "mattermost.exe", Script: "
+}, { Name: "MatterMost", Processes: "mattermost.exe", Script: "
 (
 rmdir /s /q "%appdata%\mattermost"
 )"
@@ -52,11 +52,12 @@ Run(*) {
     ; Loop through each module and apply the actions if the checkbox is checked
     for index, module in Modules {
         if ModuleCheckBoxes[index].Value {
-            ; Close the process if specified
-            if module.Process != ""
+            ; Close the processes if specified
+            for _, process in module.Processes {
                 while ProcessExist(module.Process)
                     ProcessClose module.Process
-            ; Add to single string
+            }
+            ; Build up a single script
             wholeScript := wholeScript . module.Script . "`n"
         }
     }
