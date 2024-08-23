@@ -1,15 +1,30 @@
-Modules := [{ Name: "Git", Processes: "", Script: "
+Modules := [{ 
+    Name: "Eclipse&STS git tokens", 
+    Processes: ["SpringToolSuite4.exe", "eclipse.exe"], 
+    Script: "
 (
 del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
+)"
+}, { 
+    Name: "git tokens", 
+    Processes: [], 
+    Script: "
+(
 del %UserProfile%\.gitconfig
 cmdkey /delete:git:https://lab.ssafy.com
 cmdkey /delete:git:https://github.com
 )"
-}, { Name: "Chrome", Processes: "chrome.exe", Script: "
+}, { 
+    Name: "Chrome", 
+    Processes: ["chrome.exe"], 
+    Script: "
 (
 rmdir /s /q "%localappdata%\google\chrome\user data"
 )"
-}, { Name: "MatterMost", Processes: "mattermost.exe", Script: "
+}, { 
+    Name: "MatterMost", 
+    Processes: ["mattermost.exe"], 
+    Script: "
 (
 rmdir /s /q "%appdata%\mattermost"
 )"
