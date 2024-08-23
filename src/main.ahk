@@ -3,6 +3,7 @@ Modules := [{ Name: "Git", Process: "", Script: "
 del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
 del %UserProfile%\.gitconfig
 cmdkey /delete:git:https://lab.ssafy.com
+cmdkey /delete:git:https://github.com
 )"
 }, { Name: "Chrome", Process: "chrome.exe", Script: "
 (
