@@ -1,23 +1,4 @@
 Modules := [{
-    Name: "git_certs",
-    DisplayName: "Git Certs (lab.ssafy.com, github.com)",
-    Processes: [],
-    Script: "
-(
-del %UserProfile%\.gitconfig
-cmdkey /delete:git:https://lab.ssafy.com
-cmdkey /delete:git:https://github.com
-)"
-}, {
-    Name: "eclipse_secure_storage",
-    DisplayName: "Eclipse Secure Storage",
-    Processes: ["SpringToolSuite4.exe", "eclipse.exe"
-    ],
-    Script: "
-(
-del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
-)"
-}, {
     Name: "Chrome",
     Processes: ["chrome.exe"
     ],
@@ -40,6 +21,25 @@ rmdir /s /q "%appdata%\mattermost"
     Script: "
 (
 rmdir /s /q "%appdata%\notion"
+)"
+}, {
+    Name: "git_certs",
+    DisplayName: "Git Certs (lab.ssafy.com, github.com)",
+    Processes: [],
+    Script: "
+(
+del %UserProfile%\.gitconfig
+cmdkey /delete:git:https://lab.ssafy.com
+cmdkey /delete:git:https://github.com
+)"
+}, {
+    Name: "eclipse_secure_storage",
+    DisplayName: "Eclipse Secure Storage",
+    Processes: ["SpringToolSuite4.exe", "eclipse.exe"
+    ],
+    Script: "
+(
+del %UserProfile%\.eclipse\org.eclipse.equinox.security\secure_storage
 )"
 }
 ]
