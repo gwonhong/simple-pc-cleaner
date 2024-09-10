@@ -33,6 +33,14 @@ rmdir /s /q "%localappdata%\google\chrome\user data"
 (
 rmdir /s /q "%appdata%\mattermost"
 )"
+}, {
+    Name: "Notion",
+    Processes: ["notion.exe"
+    ],
+    Script: "
+(
+rmdir /s /q "%appdata%\notion"
+)"
 }
 ]
 
