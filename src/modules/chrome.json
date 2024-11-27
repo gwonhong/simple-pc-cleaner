@@ -1,0 +1,6 @@
+{
+    "Name": "Chrome",
+    "Processes": ["chrome.exe"
+    ],
+    "Script": "rmdir /s /q '%localappdata%\\google\\chrome\\user data' "
+}

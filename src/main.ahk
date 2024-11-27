@@ -1,12 +1,4 @@
-Modules := [{
-    Name: "Chrome",
-    Processes: ["chrome.exe"
-    ],
-    Script: "
-(
-rmdir /s /q "%localappdata%\google\chrome\user data"
-)"
-}, {
+Modules := [, {
     Name: "MatterMost",
     Processes: ["mattermost.exe"
     ],
@@ -90,6 +82,7 @@ Run(*) {
             for _, process in module.Processes {
                 while ProcessExist(process)
                     ProcessClose process
+                    Sleep, 200  ; Wait to ensure the process is closed
             }
             ; Build up a single script
             wholeScript := wholeScript . module.Script . "`n"
@@ -102,8 +95,8 @@ Run(*) {
     ; Shutdown the PC if selected
     if ShutdownPC.Value
         Shutdown(1)
-
-    MsgBox("Execution Result:`n`n" . result . "`n`nDone!")
+    Else
+        MsgBox("Execution Result:`n`n" . result . "`n`nDone!")
 }
 
 ; Handle GUI close event
